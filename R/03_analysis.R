@@ -10,42 +10,43 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and limitations under the License.
 
-# Copyright 2019 Province of British Columbia
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and limitations under the License.
+library(h2o)
+library(tidyverse)
+library(RStoolbox)
 
-# Load libraries
-
-  library(mlr)
-  library(raster)
-  library(h2o)
-  library(RStoolbox)
+img <- readRDS("temp/img_Data.R")
 
 # Convert raster to numeric
-  nr <- getValues(img)
-  str(nr)
+nr <- getValues(img)
+str(nr)
 
 # Set random number generator seed
-  set.seed(23)
+set.seed(23)
 
 # Run cluster analysis for 10 groups (can be slow)
-  kmncluster <- kmeans(x = na.omit(nr), centers = 10)
+kmncluster <- kmeans(x = na.omit(nr), centers = 10)
 
 # Insert cluster values into the raster structure
-  knr <- setValues(img[[1]], kmncluster$cluster)
+knr <- setValues(img[[1]], kmncluster$cluster)
 
 # Plot (force categorical)
-  ggR(knr, forceCat = T, geom_raster = T) + scale_fill_brewer(palette = "Set1")
+ggR(knr, forceCat = T, geom_raster = T) +
+  scale_fill_brewer(palette = "Set1")
 
+#Convert to WGS84
+#imgWGS <- projectRaster(img, crs = crs("+init=EPSG:4326"))
 
+#### EXTRACT URBAN, WATER, FOREST ####
 
+# xy coords
+  xy <- xyFromCell(img[[1]], kmncluster$cluster)
+  xy <- data.frame(xy)
+  training <- tibble(class = kmncluster$cluster, x = xy$x, y = xy$y)
 
+# Add classification to spectral matrix
+  training <- training %>%
+    filter(class %in% c(1,2,5))
+
+#save RDS file
+saveRDS(training, "temp/training.R")
 
