@@ -23,6 +23,5 @@ band_names <- c("blue","green","red","nir","rededge1","rededge2","rededge3","swi
 # Assign new names
 names(img) <- band_names
 
+#save RDS file
 saveRDS(img, "temp/img_Data.R")
-
-
