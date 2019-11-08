@@ -28,23 +28,37 @@
   library(h2o)
   library(RStoolbox)
 
-# Convert raster to numeric
-  nr <- getValues(img)
-  str(nr)
+#### KMEANS CLASSIFICATION ####
 
-# Set random number generator seed
-  set.seed(23)
+  # Convert raster to numeric
+    nr <- getValues(img)
+    str(nr)
 
-# Run cluster analysis for 10 groups (can be slow)
-  kmncluster <- kmeans(x = na.omit(nr), centers = 10)
+  # Set random number generator seed
+    set.seed(23)
 
-# Insert cluster values into the raster structure
-  knr <- setValues(img[[1]], kmncluster$cluster)
+  # Run cluster analysis for 10 groups (can be slow)
+    kmncluster <- kmeans(x = na.omit(nr), centers = 10)
 
-# Plot (force categorical)
-  ggR(knr, forceCat = T, geom_raster = T) + scale_fill_brewer(palette = "Set1")
+  # Insert cluster values into the raster structure
+    knr <- setValues(img[[1]], kmncluster$cluster)
 
-# Convert to WGS84
-  imgWGS <- projectRaster(img, crs = crs("+init=EPSG:4326"))
+  # Plot (force categorical)
+    # ggR(knr, forceCat = T, geom_raster = T) + scale_fill_brewer(palette = "Set1")
 
+  # Convert to WGS84
+    # imgWGS <- projectRaster(img, crs = crs("+init=EPSG:4326"))
 
+#### EXTRACT URBAN, WATER, FOREST ####
+
+  # xy coords
+    xy <- xyFromCell(img[[1]], kmncluster$cluster)
+    xy <- data.frame(xy)
+    training <- tibble(class = kmncluster$cluster, x = xy$x, y = xy$y)
+
+  # Add classification to spectral matrix
+    training <- training %>%
+      filter(class %in% c(1,2,5))
+
+    #save RDS file
+    saveRDS(training, "temp/training.R")
