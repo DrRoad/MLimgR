@@ -34,7 +34,19 @@ ggR(knr, forceCat = T, geom_raster = T) +
   scale_fill_brewer(palette = "Set1")
 
 #Convert to WGS84
-imgWGS <- projectRaster(img, crs = crs("+init=EPSG:4326"))
+#imgWGS <- projectRaster(img, crs = crs("+init=EPSG:4326"))
 
+#### EXTRACT URBAN, WATER, FOREST ####
 
+# xy coords
+xy <- xyFromCell(img[[1]], kmncluster$cluster)
+xy <- data.frame(xy)
+training <- tibble(class = kmncluster$cluster, x = xy$x, y = xy$y)
+
+# Add classification to spectral matrix
+training <- training %>%
+  filter(class %in% c(1,2,5))
+
+#save RDS file
+saveRDS(training, "temp/training.R")
 
