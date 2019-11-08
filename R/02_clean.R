@@ -14,12 +14,13 @@ library(RStoolbox)
 
 #read the image raster for PG
 img <- readRDS("temp/img_Data.R")
-
+names(img)
 #a list of the indices we want to calculate
 list.indices <- c("NDVI", "SR", "NDWI", "MTCI")
 
 for (i in seq(1:length(list.indices))) {
-  tmp <- spectralIndices(img, red = "red", nir = "nir", green = "green",
+  print(i)
+  tmp <- RStoolbox::spectralIndices(img, red = "red", nir = "nir", green = "green",
                        blue = "blue", redEdge1 = "rededge1",
                        redEdge2 = "rededge2", indices = list.indices[i])
 
@@ -27,16 +28,20 @@ for (i in seq(1:length(list.indices))) {
   img <- stack(tmp, img)
 }
 
-saveRDS(img, "temp/img_indices.R")
+PGE<-raster("raster_elev/dataset/DEM.tif")
+PGS<-("raster_sentinel/T10UEE_20190529T191911_20m.tif")
 
-<<<<<<< HEAD
-=======
-}
+PGEP<-projectRaster(PGE,img)
 
+PGEPR<-resample(PGEP,img)
 
+PGEPRC<-crop(PGEPR,img)
 
+slope = terrain(PGEPRC, 'slope', unit='degrees', neighbors=8)
 
-img <- readRDS("temp/img_Data.R")
+img <- stack(img, slope, PGEPRC)
+
+saveRDS(img, "temp/img_indices_w_DEM.R")
 
 # Convert raster to numeric
 nr <- getValues(img)
@@ -71,5 +76,5 @@ training <- training %>%
 
 #save RDS file
 saveRDS(training, "temp/training.R")
->>>>>>> db9048ccb12d502ccc16a8c45a37b3c5a3997804
+
 
