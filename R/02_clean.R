@@ -28,16 +28,16 @@ for (i in seq(1:length(list.indices))) {
   img <- stack(tmp, img)
 }
 
-PGE<-raster("raster_elev/dataset/DEM.tif")
-PGS<-("raster_sentinel/T10UEE_20190529T191911_20m.tif")
+PGE <- raster("raster_elev/dataset/DEM.tif")
+PGS <- ("raster_sentinel/T10UEE_20190529T191911_20m.tif")
 
-PGEP<-projectRaster(PGE,img)
+PGEP <- projectRaster(PGE, img)
 
-PGEPR<-resample(PGEP,img)
+PGEPR <- resample(PGEP, img)
 
-PGEPRC<-crop(PGEPR,img)
+PGEPRC <- crop(PGEPR, img)
 
-slope = terrain(PGEPRC, 'slope', unit='degrees', neighbors=8)
+slope <- terrain(PGEPRC, 'slope', unit = 'degrees', neighbors = 8)
 
 img <- stack(img, slope, PGEPRC)
 
