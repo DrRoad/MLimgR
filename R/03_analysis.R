@@ -13,4 +13,42 @@
 library(h2o)
 library(tidyverse)
 library(RStoolbox)
+library(caret)
+library(raster)
+
+training
+img
+
+#####
+img <- readRDS("temp/img_indices_w_DEM.R")
+training <- readRDS("temp/training.R")
+####
+
+# library(caret); library(rgdal)
+# demo(meuse, echo=FALSE)
+# meuse.ov <- cbind(over(meuse, meuse.grid), meuse@data)
+# meuse.ov$x0 = 1
+
+fitControl <- trainControl(method = "repeatedcv", number = 3, repeats = 2)
+
+mFit0 <- caret::train(class~nir, data = training, method = "glm",
+                      family = gaussian(link = log), trControl = fitControl,
+                      na.action = na.omit)
+
+mFit1 <- caret::train(class~nir+NDVI, data=training, method="glm",
+                      family=gaussian(link=log), trControl=fitControl,
+                      na.action=na.omit)
+
+mFit2 <- caret::train(class~blue, data=training, method="glm",
+                      family=gaussian(link=log), trControl=fitControl,
+                      na.action=na.omit)
+
+mFit3 <- caret::train(class~nir+NDVI, data=training, method="ranger",
+                      trControl=fitControl, na.action=na.omit)
+
+resamps <- resamples(list(mf0=mFit0, mf1=mFit1, mf2=mFit2, mf03=mFit3))
+
+bwplot(resamps, layout = c(2, 1), metric = c("RMSE","Rsquared"),
+       fill="grey", scales = list(relation = "free", cex = .7),
+       cex.main = .7, cex.axis = .7)
 
