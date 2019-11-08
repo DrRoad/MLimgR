@@ -43,6 +43,8 @@ img <- stack(img, slope, PGEPRC)
 
 saveRDS(img, "temp/img_indices_w_DEM.R")
 
+img <- readRDS("temp/img_w_DEM_indices.R")
+
 # Convert raster to numeric
 nr <- getValues(img)
 str(nr)
@@ -69,12 +71,11 @@ ggR(knr, forceCat = T, geom_raster = T) +
 xy <- xyFromCell(img[[1]], kmncluster$cluster)
 xy <- data.frame(xy)
 training <- tibble(class = kmncluster$cluster, x = xy$x, y = xy$y)
-
+training <- cbind(nr, training)
 # Add classification to spectral matrix
 training <- training %>%
   filter(class %in% c(1,2,5))
 
 #save RDS file
 saveRDS(training, "temp/training.R")
-
 
