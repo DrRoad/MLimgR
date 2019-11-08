@@ -29,9 +29,6 @@ for (i in seq(1:length(list.indices))) {
 
 saveRDS(img, "temp/img_indices.R")
 
-# }
-
-
 
 
 img <- readRDS("temp/img_indices.R")
