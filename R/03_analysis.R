@@ -23,7 +23,6 @@
 # See the License for the specific language governing permissions and limitations under the License.
 
 # Load libraries
-
   library(mlr)
   library(raster)
   library(h2o)
@@ -45,7 +44,7 @@
 # Plot (force categorical)
   ggR(knr, forceCat = T, geom_raster = T) + scale_fill_brewer(palette = "Set1")
 
-
-
+# Convert to WGS84
+  imgWGS <- projectRaster(img, crs = crs("+init=EPSG:4326"))
 
 
